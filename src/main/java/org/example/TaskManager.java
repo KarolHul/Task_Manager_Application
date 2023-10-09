@@ -40,7 +40,7 @@ public class TaskManager {
     public void sortByPriority() {
         tasks.sort((task1, task2) -> task1.getPriority().compareTo(task2.getPriority()));
     }
-    
+
     public void sortByTargetDate() {
         tasks.sort((task1, task2) -> task1.getTarget_date().compareTo(task2.getTarget_date()));
     }
