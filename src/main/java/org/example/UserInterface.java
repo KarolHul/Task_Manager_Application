@@ -1,9 +1,9 @@
 package org.example;
 
+import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Scanner;
 
 public class UserInterface {
     private TaskManager taskManager;
@@ -49,7 +49,7 @@ public class UserInterface {
                     taskManager.sortByPriority();
                     break;
                 case 6:
-                    taskManager.sortByTargetDate(); // Corrected method name
+                    taskManager.sortByTargetDate();
                     break;
                 case 0:
                     System.out.println("Exiting the application...");
@@ -66,7 +66,15 @@ public class UserInterface {
         String title = scanner.nextLine();
         System.out.print("Description: ");
         String description = scanner.nextLine();
+        LocalDate dueDate = getValidFutureDate();
+        String priority = getValidPriorityInput();
 
+        Task newTask = new Task(title, description, dueDate, priority);
+        taskManager.addTask(newTask);
+        System.out.println("Task added successfully.");
+    }
+
+    private LocalDate getValidFutureDate() {
         LocalDate dueDate = null;
         boolean validDate = false;
         while (!validDate) {
@@ -75,7 +83,6 @@ public class UserInterface {
                 String dueDateStr = scanner.nextLine();
                 dueDate = LocalDate.parse(dueDateStr);
 
-                // Sprawdzenie, czy data jest w przyszłości
                 if (dueDate.isAfter(LocalDate.now())) {
                     validDate = true;
                 } else {
@@ -85,14 +92,15 @@ public class UserInterface {
                 System.out.println("Invalid date format. Please use YYYY-MM-DD.");
             }
         }
+        return dueDate;
+    }
 
+    private String getValidPriorityInput() {
         String priority = null;
         boolean validPriority = false;
         while (!validPriority) {
             System.out.print("Priority (L=Low, M=Medium, H=High): ");
             String priorityInput = scanner.nextLine();
-
-            // Konwertowanie skrótu na pełną nazwę priorytetu
             switch (priorityInput.toUpperCase()) {
                 case "L":
                     priority = "Low";
@@ -110,73 +118,24 @@ public class UserInterface {
                     System.out.println("Invalid priority. Please enter L, M, or H.");
             }
         }
-
-        Task newTask = new Task(title, description, dueDate, priority);
-        taskManager.addTask(newTask);
-        System.out.println("Task added successfully.");
+        return priority;
     }
-
-
 
     private void editTask() {
         System.out.println("Editing a Task:");
         displayTaskList();
         System.out.print("Enter the task number to edit: ");
         int userIndex = scanner.nextInt();
-        int internalIndex = userIndex - 1; // Konwersja numeru od użytkownika na indeks wewnętrzny
-        scanner.nextLine();  // Read the extra newline
-
+        int internalIndex = userIndex - 1;
+        scanner.nextLine();
         if (internalIndex >= 0 && internalIndex < taskManager.getTasks().size()) {
             Task taskToEdit = taskManager.getTasks().get(internalIndex);
             System.out.print("New Title: ");
             String newTitle = scanner.nextLine();
             System.out.print("New Description: ");
             String newDescription = scanner.nextLine();
-
-            LocalDate newDueDate = null;
-            boolean validDate = false;
-            while (!validDate) {
-                try {
-                    System.out.print("New Due Date (YYYY-MM-DD): ");
-                    String newDueDateStr = scanner.nextLine();
-                    newDueDate = LocalDate.parse(newDueDateStr);
-
-                    // Sprawdzenie, czy data jest w przyszłości
-                    if (newDueDate.isAfter(LocalDate.now())) {
-                        validDate = true;
-                    } else {
-                        System.out.println("The due date must be in the future.");
-                    }
-                } catch (DateTimeParseException e) {
-                    System.out.println("Invalid date format. Please use YYYY-MM-DD.");
-                }
-            }
-
-            String newPriority = null;
-            boolean validPriority = false;
-            while (!validPriority) {
-                System.out.print("New Priority (L=Low, M=Medium, H=High): ");
-                String newPriorityInput = scanner.nextLine();
-
-                // Konwertowanie skrótu na pełną nazwę priorytetu
-                switch (newPriorityInput.toUpperCase()) {
-                    case "L":
-                        newPriority = "Low";
-                        validPriority = true;
-                        break;
-                    case "M":
-                        newPriority = "Medium";
-                        validPriority = true;
-                        break;
-                    case "H":
-                        newPriority = "High";
-                        validPriority = true;
-                        break;
-                    default:
-                        System.out.println("Invalid priority. Please enter L, M, or H.");
-                }
-            }
-
+            LocalDate newDueDate = getValidFutureDate();
+            String newPriority = getValidPriorityInput();
             taskToEdit.setTitle(newTitle);
             taskToEdit.setDescription(newDescription);
             taskToEdit.setTarget_date(newDueDate);
@@ -187,15 +146,13 @@ public class UserInterface {
         }
     }
 
-
     private void deleteTask() {
         System.out.println("Deleting a Task:");
         displayTaskList();
         System.out.print("Enter the task number to delete: ");
         int userIndex = scanner.nextInt();
-        int internalIndex = userIndex - 1; // Konwersja numeru od użytkownika na indeks wewnętrzny
-        scanner.nextLine();  // Read the extra newline
-
+        int internalIndex = userIndex - 1;
+        scanner.nextLine();
         if (internalIndex >= 0 && internalIndex < taskManager.getTasks().size()) {
             taskManager.deleteTask(internalIndex);
             System.out.println("Task deleted successfully.");
@@ -212,7 +169,7 @@ public class UserInterface {
             System.out.println("Task List:");
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
-                int taskNumber = i + 1; // Zaczynamy numerowanie od 1
+                int taskNumber = i + 1;
                 System.out.println("Number: " + taskNumber);
                 System.out.println("Title: " + task.getTitle());
                 System.out.println("Description: " + task.getDescription());
